@@ -1,3 +1,8 @@
+/**
+ * Crypto slice: coins list + selected coin detail.
+ * Redux is used instead of local state so: (1) coin data is shared across dashboard, detail page, and future components;
+ * (2) loading/error and refetch logic live in one place (thunks); (3) polling updates the store once and all subscribers re-render.
+ */
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { fetchMarkets, fetchCoinDetail as fetchCoinDetailApi } from "@/services/cryptoApi";
 import type { Coin } from "@/types/crypto";
