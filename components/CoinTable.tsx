@@ -83,36 +83,45 @@ export default function CoinTable({
     );
   }
 
+  const tableGridClass = "grid min-w-[700px]";
+  const tableGridStyle = { gridTemplateColumns: "40px 2fr 1fr 1.2fr 1fr 1.5fr 120px 80px" } as React.CSSProperties;
+
   return (
     <div className="bg-app-bg-card border border-app-border rounded-xl overflow-hidden">
-      {/* Header row */}
-      <div
-        className="grid px-4 py-3 border-b border-app-border text-xs font-app-mono text-app-text-dimmer"
-        style={{ gridTemplateColumns: "40px 2fr 1fr 1.2fr 1fr 1.5fr 120px 80px" }}
-      >
-        <div className="text-center">#</div>
-        <div className="flex items-center gap-1 cursor-pointer hover:text-app-accent transition-colors select-none">
-          NAME ↕
-        </div>
-        <div className="text-right flex items-center justify-end gap-1 cursor-pointer hover:text-app-accent transition-colors select-none">
-          PRICE <span className="text-app-accent">↓</span>
-        </div>
-        <div className="text-right cursor-pointer hover:text-app-accent transition-colors select-none">24H %</div>
-        <div className="text-right cursor-pointer hover:text-app-accent transition-colors select-none">7D %</div>
-        <div className="text-right cursor-pointer hover:text-app-accent transition-colors select-none">MARKET CAP</div>
-        <div className="text-right text-app-text-dimmer">7D CHART</div>
-        <div className="text-center text-app-text-dimmer">ACTION</div>
-      </div>
+      <p className="md:hidden px-4 py-1.5 text-xs font-app-mono text-app-text-dimmer border-b border-app-border-subtle">
+        ← Scroll table for more columns →
+      </p>
+      {/* Mobile: horizontal scroll so table doesn't collapse; touch-friendly */}
+      <div className="overflow-x-auto overflow-y-hidden overscroll-x-contain">
+        <div className="min-w-[732px] px-4">
+          {/* Header row */}
+          <div
+            className={`${tableGridClass} py-3 border-b border-app-border text-xs font-app-mono text-app-text-dimmer`}
+            style={tableGridStyle}
+          >
+            <div className="text-center">#</div>
+            <div className="flex items-center gap-1 cursor-pointer hover:text-app-accent transition-colors select-none min-w-0">
+              NAME ↕
+            </div>
+            <div className="text-right flex items-center justify-end gap-1 cursor-pointer hover:text-app-accent transition-colors select-none">
+              PRICE <span className="text-app-accent">↓</span>
+            </div>
+            <div className="text-right cursor-pointer hover:text-app-accent transition-colors select-none">24H %</div>
+            <div className="text-right cursor-pointer hover:text-app-accent transition-colors select-none">7D %</div>
+            <div className="text-right cursor-pointer hover:text-app-accent transition-colors select-none">MARKET CAP</div>
+            <div className="text-right text-app-text-dimmer">7D CHART</div>
+            <div className="text-center text-app-text-dimmer">ACTION</div>
+          </div>
 
-      {/* Coin rows */}
-      {coins.map((coin) => (
-        <Link
-          key={coin.id}
-          href={`/coin/${coin.id}`}
-          className="grid items-center px-4 py-3.5 border-b border-app-border-subtle last:border-0
-            hover:bg-app-accent-muted hover:border-l-2 hover:border-l-app-accent transition-all"
-          style={{ gridTemplateColumns: "40px 2fr 1fr 1.2fr 1fr 1.5fr 120px 80px" }}
-        >
+          {/* Coin rows */}
+          {coins.map((coin) => (
+            <Link
+              key={coin.id}
+              href={`/coin/${coin.id}`}
+              className={`${tableGridClass} items-center py-3.5 border-b border-app-border-subtle last:border-0
+                hover:bg-app-accent-muted hover:border-l-2 hover:border-l-app-accent transition-all`}
+              style={tableGridStyle}
+            >
           {/* Rank */}
           <div className="text-xs font-app-mono text-app-text-dim text-center">
             {coin.rank}
@@ -199,8 +208,10 @@ export default function CoinTable({
           </div>
         </Link>
       ))}
+        </div>
+      </div>
 
-      {/* Footer / pagination */}
+      {/* Footer / pagination — outside scroll so it stays visible on mobile */}
       <div className="px-4 py-3 border-t border-app-border-subtle flex flex-col sm:flex-row items-center justify-between gap-2">
         <p className="text-xs font-app-mono text-app-text-dimmer">
           Page {currentPage} · Showing {(currentPage - 1) * perPage + 1}–{(currentPage - 1) * perPage + coins.length} · Data: CoinGecko
