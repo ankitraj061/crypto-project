@@ -2,6 +2,8 @@
 
 A **Next.js + TypeScript + Redux Toolkit** app that fetches and displays live cryptocurrency prices from the [CoinGecko API](https://www.coingecko.com/en/api). Built for a frontend intern assignment.
 
+**Live demo (Vercel):** [https://crypto-project-s57h.vercel.app/dashboard](https://crypto-project-s57h.vercel.app/dashboard)
+
 ## Features
 
 - **Dashboard** (`/dashboard`): Top 10 coins by market cap in table or card layout
@@ -115,6 +117,13 @@ The app uses **configureStore**, **createSlice**, and **createAsyncThunk** from 
 - `npm run build` — Production build
 - `npm run start` — Start production server
 - `npm run lint` — Run ESLint
+
+## Deployment
+
+The app is deployed on **Vercel**:
+
+- **Dashboard:** [https://crypto-project-s57h.vercel.app/dashboard](https://crypto-project-s57h.vercel.app/dashboard)
+- **Root** redirects to the dashboard.
 
 ## License
 
