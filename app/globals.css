@@ -1,26 +1,129 @@
 @import "tailwindcss";
 
+/* ─── Design tokens (use these in components via Tailwind theme classes) ─── */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* Backgrounds */
+  --app-bg: #07090c;
+  --app-bg-elevated: rgba(255, 255, 255, 0.04);
+  --app-bg-card: rgba(255, 255, 255, 0.03);
+  --app-bg-input: rgba(255, 255, 255, 0.04);
+  --app-bg-input-focus: rgba(255, 255, 255, 0.06);
+  --app-bg-button-ghost: rgba(255, 255, 255, 0.04);
+  --app-bg-loader-ring: rgba(255, 255, 255, 0.06);
+  --app-bg-grid: rgba(0, 212, 255, 0.025);
+  --app-bg-nav: rgba(7, 9, 12, 0.8);
+
+  /* Borders */
+  --app-border: rgba(255, 255, 255, 0.08);
+  --app-border-subtle: rgba(255, 255, 255, 0.04);
+  --app-border-strong: rgba(255, 255, 255, 0.1);
+  --app-border-nav: rgba(255, 255, 255, 0.05);
+  --app-border-input: rgba(255, 255, 255, 0.08);
+  --app-border-hover: rgba(255, 255, 255, 0.2);
+
+  /* Accent (primary CTA, links) */
+  --app-accent: #00d4ff;
+  --app-accent-hover: #00b8d9;
+  --app-accent-muted: rgba(0, 212, 255, 0.1);
+  --app-accent-muted-border: rgba(0, 212, 255, 0.25);
+  --app-accent-muted-border-strong: rgba(0, 212, 255, 0.3);
+  --app-accent-focus: rgba(0, 212, 255, 0.4);
+  --app-accent-on: #07090c;
+  --app-accent-placeholder: rgba(0, 212, 255, 0.2);
+  --app-accent-placeholder-border: rgba(0, 212, 255, 0.3);
+
+  /* Text */
+  --app-text: #f8fafc;
+  --app-text-muted: #94a3b8;
+  --app-text-dim: #64748b;
+  --app-text-dimmer: #475569;
+  --app-text-footer: #334155;
+  --app-text-inverse: #07090c;
+
+  /* Positive / negative (price change, success, error) */
+  --app-positive: #34d399;
+  --app-positive-bg: rgba(52, 211, 153, 0.1);
+  --app-positive-border: rgba(52, 211, 153, 0.25);
+  --app-negative: #f43f5e;
+  --app-negative-bg: rgba(244, 63, 94, 0.1);
+  --app-negative-border: rgba(244, 63, 94, 0.25);
+  --app-negative-icon: #ff4d6d;
+
+  /* Chart / sparkline */
+  --app-chart-up: #00e676;
+  --app-chart-down: #ff4d6d;
+
+  /* Icon placeholder (e.g. search icon) */
+  --app-icon-muted: #475569;
+
+  /* Radii */
+  --app-radius-sm: 0.25rem;
+  --app-radius-md: 0.5rem;
+  --app-radius-lg: 0.75rem;
+  --app-radius-xl: 0.75rem;
+  --app-radius-2xl: 1rem;
+
+  /* Layout */
+  --app-grid-size: 40px;
 }
 
+/* Expose as Tailwind theme for utility classes (bg-app-bg, text-app-accent, etc.) */
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --color-app-bg: var(--app-bg);
+  --color-app-bg-elevated: var(--app-bg-elevated);
+  --color-app-bg-card: var(--app-bg-card);
+  --color-app-bg-input: var(--app-bg-input);
+  --color-app-bg-input-focus: var(--app-bg-input-focus);
+  --color-app-bg-button-ghost: var(--app-bg-button-ghost);
+  --color-app-bg-loader-ring: var(--app-bg-loader-ring);
+  --color-app-bg-nav: var(--app-bg-nav);
+  --color-app-border: var(--app-border);
+  --color-app-border-subtle: var(--app-border-subtle);
+  --color-app-border-strong: var(--app-border-strong);
+  --color-app-border-nav: var(--app-border-nav);
+  --color-app-border-input: var(--app-border-input);
+  --color-app-border-hover: var(--app-border-hover);
+  --color-app-accent: var(--app-accent);
+  --color-app-accent-hover: var(--app-accent-hover);
+  --color-app-accent-muted: var(--app-accent-muted);
+  --color-app-accent-muted-border: var(--app-accent-muted-border);
+  --color-app-accent-muted-border-strong: var(--app-accent-muted-border-strong);
+  --color-app-accent-focus: var(--app-accent-focus);
+  --color-app-accent-on: var(--app-accent-on);
+  --color-app-text: var(--app-text);
+  --color-app-text-muted: var(--app-text-muted);
+  --color-app-text-dim: var(--app-text-dim);
+  --color-app-text-dimmer: var(--app-text-dimmer);
+  --color-app-text-footer: var(--app-text-footer);
+  --color-app-text-inverse: var(--app-text-inverse);
+  --color-app-positive: var(--app-positive);
+  --color-app-positive-bg: var(--app-positive-bg);
+  --color-app-positive-border: var(--app-positive-border);
+  --color-app-negative: var(--app-negative);
+  --color-app-negative-bg: var(--app-negative-bg);
+  --color-app-negative-border: var(--app-negative-border);
+  --color-app-negative-icon: var(--app-negative-icon);
+  --color-app-chart-up: var(--app-chart-up);
+  --color-app-chart-down: var(--app-chart-down);
+  --color-app-icon-muted: var(--app-icon-muted);
+  --radius-app-sm: var(--app-radius-sm);
+  --radius-app-md: var(--app-radius-md);
+  --radius-app-lg: var(--app-radius-lg);
+  --radius-app-xl: var(--app-radius-xl);
+  --radius-app-2xl: var(--app-radius-2xl);
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background-color: var(--app-bg);
+  color: var(--app-text-muted);
+  font-family: var(--font-geist-sans, system-ui, sans-serif);
+  background-image:
+    linear-gradient(var(--app-bg-grid) 1px, transparent 1px),
+    linear-gradient(90deg, var(--app-bg-grid) 1px, transparent 1px);
+  background-size: var(--app-grid-size) var(--app-grid-size);
 }
+
+/* Utility classes using variables (for font-family; Tailwind uses theme) */
+.font-app-syne { font-family: var(--font-syne), system-ui, sans-serif; }
+.font-app-mono { font-family: var(--font-mono), ui-monospace, monospace; }
+.font-app-dm { font-family: var(--font-dm), system-ui, sans-serif; }
