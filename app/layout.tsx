@@ -40,10 +40,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               {/* Nav links */}
               <div className="hidden md:flex items-center gap-1">
                 {[
-                  { href: "/dashboard", label: "Dashboard", active: true },
-                  { href: "#", label: "Portfolio" },
-                  { href: "#", label: "Watchlist" },
-                  { href: "#", label: "News" },
+                  { href: "/dashboard", label: "Dashboard", active: true }
                 ].map((link) => (
                   <Link key={link.label} href={link.href}
                     className={`px-3 py-1.5 rounded-lg text-xs font-app-syne font-semibold transition-colors ${
