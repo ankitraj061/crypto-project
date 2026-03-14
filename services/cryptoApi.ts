@@ -1,6 +1,6 @@
 // API layer for CoinGecko. Uses NEXT_PUBLIC_API_URL and supports auth headers for future use.
 
-const getBaseUrl = (): string => {
+const getBaseUrl = (): string|undefined => {
   const url = process.env.NEXT_PUBLIC_API_URL;
   if (url) return url.replace(/\/$/, "");
 };
