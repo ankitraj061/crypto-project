@@ -3,6 +3,52 @@ import { fetchMarkets, fetchCoinDetail as fetchCoinDetailApi } from "@/services/
 import type { Coin } from "@/types/crypto";
 import type { CoinGeckoMarketItem } from "@/types/crypto";
 
+/** Ensure we never store currency objects (e.g. { usd, eur, ... }) — normalize to primitives */
+function toNum(v: unknown): number {
+  if (typeof v === "number" && !Number.isNaN(v)) return v;
+  if (v && typeof v === "object" && "usd" in v) {
+    const u = (v as { usd?: unknown }).usd;
+    if (typeof u === "number" && !Number.isNaN(u)) return u;
+  }
+  return 0;
+}
+function toStr(v: unknown): string {
+  if (typeof v === "string") return v;
+  if (v && typeof v === "object" && "usd" in v) {
+    const u = (v as { usd?: unknown }).usd;
+    if (typeof u === "string") return u;
+  }
+  return v != null ? String(v) : "";
+}
+function normalizeCoinDetail(p: CoinDetailState): CoinDetailState {
+  return {
+    id: toStr(p.id),
+    name: toStr(p.name),
+    symbol: toStr(p.symbol),
+    image: p.image != null ? toStr(p.image) : undefined,
+    price: toNum(p.price),
+    marketCap: toNum(p.marketCap),
+    volume24h: toNum(p.volume24h),
+    change24h: toNum(p.change24h),
+    high24h: toNum(p.high24h),
+    low24h: toNum(p.low24h),
+    priceChange24h: toNum(p.priceChange24h),
+    marketCapChange24h: toNum(p.marketCapChange24h),
+    marketCapChangePercent24h: toNum(p.marketCapChangePercent24h),
+    circulatingSupply: toNum(p.circulatingSupply),
+    totalSupply: p.totalSupply == null ? null : toNum(p.totalSupply),
+    maxSupply: p.maxSupply == null ? null : toNum(p.maxSupply),
+    ath: toNum(p.ath),
+    athDate: toStr(p.athDate),
+    athChangePercent: toNum(p.athChangePercent),
+    atl: toNum(p.atl),
+    atlDate: toStr(p.atlDate),
+    atlChangePercent: toNum(p.atlChangePercent),
+    lastUpdated: toStr(p.lastUpdated),
+    description: p.description != null ? toStr(p.description) : undefined,
+  };
+}
+
 /** Map coin ids to category for filter (API doesn't return category) */
 const COIN_CATEGORY_MAP: Record<string, string> = {
   bitcoin: "Layer 1",
@@ -35,11 +81,11 @@ function mapMarketToCoin(item: CoinGeckoMarketItem): Coin {
     image: item.image,
     color: "#00d4ff",
     category: COIN_CATEGORY_MAP[item.id] ?? "Crypto",
-    price: item.current_price ?? 0,
-    change24h: item.price_change_percentage_24h ?? 0,
-    change7d: item.price_change_percentage_7d_in_currency ?? 0,
-    marketCap: item.market_cap ?? 0,
-    volume: item.total_volume ?? 0,
+    price: toNum(item.current_price as unknown),
+    change24h: toNum(item.price_change_percentage_24h as unknown),
+    change7d: toNum(item.price_change_percentage_7d_in_currency as unknown),
+    marketCap: toNum(item.market_cap as unknown),
+    volume: toNum(item.total_volume as unknown),
   };
 }
 
@@ -81,6 +127,22 @@ export interface CoinDetailState {
   marketCap: number;
   volume24h: number;
   change24h: number;
+  high24h: number;
+  low24h: number;
+  priceChange24h: number;
+  marketCapChange24h: number;
+  marketCapChangePercent24h: number;
+  circulatingSupply: number;
+  totalSupply: number | null;
+  maxSupply: number | null;
+  ath: number;
+  athDate: string;
+  athChangePercent: number;
+  atl: number;
+  atlDate: string;
+  atlChangePercent: number;
+  lastUpdated: string;
+  description?: string;
 }
 
 export const fetchCoinDetail = createAsyncThunk<CoinDetailState, string>(
@@ -145,7 +207,7 @@ const cryptoSlice = createSlice({
       .addCase(fetchCoinDetail.fulfilled, (state, { payload }) => {
         state.selectedCoinLoading = false;
         state.selectedCoinError = null;
-        state.selectedCoin = payload;
+        state.selectedCoin = normalizeCoinDetail(payload as CoinDetailState);
       })
       .addCase(fetchCoinDetail.rejected, (state, { payload }) => {
         state.selectedCoinLoading = false;

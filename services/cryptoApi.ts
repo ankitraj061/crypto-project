@@ -1,8 +1,9 @@
 // API layer for CoinGecko. Uses NEXT_PUBLIC_API_URL and supports auth headers for future use.
 
-const getBaseUrl = (): string|undefined => {
+const getBaseUrl = (): string => {
   const url = process.env.NEXT_PUBLIC_API_URL;
   if (url) return url.replace(/\/$/, "");
+  return "https://api.coingecko.com/api/v3";
 };
 
 type RequestInitWithAuth = RequestInit & { headers?: HeadersInit & { Authorization?: string } };
@@ -59,8 +60,8 @@ export async function fetchCoinById(id: string): Promise<unknown> {
   return request(`/coins/${encodeURIComponent(sanitized)}`);
 }
 
-/** Fetch single coin detail; returns normalized CoinDetail for /coin/[id] page */
-export async function fetchCoinDetail(id: string): Promise<{
+/** Normalized coin detail from /coins/{id} for the coin detail page */
+export interface CoinDetailResponse {
   id: string;
   name: string;
   symbol: string;
@@ -69,28 +70,97 @@ export async function fetchCoinDetail(id: string): Promise<{
   marketCap: number;
   volume24h: number;
   change24h: number;
-}> {
-  const raw = await fetchCoinById(id) as {
-    id: string;
-    symbol: string;
-    name: string;
-    image?: { small?: string; large?: string };
-    market_data?: {
-      current_price?: { usd?: number };
-      market_cap?: { usd?: number };
-      total_volume?: { usd?: number };
-      price_change_percentage_24h?: number | null;
-    };
+  high24h: number;
+  low24h: number;
+  priceChange24h: number;
+  marketCapChange24h: number;
+  marketCapChangePercent24h: number;
+  circulatingSupply: number;
+  totalSupply: number | null;
+  maxSupply: number | null;
+  ath: number;
+  athDate: string;
+  athChangePercent: number;
+  atl: number;
+  atlDate: string;
+  atlChangePercent: number;
+  lastUpdated: string;
+  description?: string;
+}
+
+/** Safely get USD number from API value (can be object like { usd: 1, eur: 2 } or a number) */
+function getUsdNumber(value: unknown): number {
+  if (typeof value === "number" && !Number.isNaN(value)) return value;
+  if (value && typeof value === "object" && "usd" in value) {
+    const v = (value as { usd?: unknown }).usd;
+    if (typeof v === "number" && !Number.isNaN(v)) return v;
+  }
+  return 0;
+}
+
+/** Safely get a number from API (might be nested in .usd or direct) */
+function getNumber(value: unknown): number {
+  if (typeof value === "number" && !Number.isNaN(value)) return value;
+  return getUsdNumber(value);
+}
+
+/** Safely get a date string (API may return object like { usd: "2021-11-10..." } or a string) */
+function getDateString(value: unknown): string {
+  if (typeof value === "string") return value;
+  if (value && typeof value === "object" && "usd" in value) {
+    const v = (value as { usd?: unknown }).usd;
+    if (typeof v === "string") return v;
+  }
+  return "";
+}
+
+/** Fetch single coin detail; returns normalized CoinDetail for /coin/[id] page */
+export async function fetchCoinDetail(id: string): Promise<CoinDetailResponse> {
+  const raw = await fetchCoinById(id) as Record<string, unknown>;
+  const md = raw.market_data as Record<string, unknown> | undefined;
+  const formatDate = (s: string) => {
+    if (!s) return "—";
+    try {
+      const d = new Date(s);
+      return isNaN(d.getTime()) ? s : d.toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" });
+    } catch {
+      return s;
+    }
   };
-  const md = raw.market_data;
+  const desc = raw.description as { en?: string } | undefined;
+  const athDateRaw = getDateString(md?.ath_date);
+  const atlDateRaw = getDateString(md?.atl_date);
+  const lastUpdatedRaw = md?.last_updated;
+  const lastUpdatedStr =
+    typeof lastUpdatedRaw === "string"
+      ? lastUpdatedRaw
+      : lastUpdatedRaw && typeof lastUpdatedRaw === "object" && "usd" in lastUpdatedRaw
+        ? String((lastUpdatedRaw as { usd?: unknown }).usd ?? "")
+        : "";
   return {
-    id: raw.id,
-    name: raw.name,
-    symbol: (raw.symbol ?? "").toUpperCase(),
-    image: raw.image?.large ?? raw.image?.small,
-    price: md?.current_price?.usd ?? 0,
-    marketCap: md?.market_cap?.usd ?? 0,
-    volume24h: md?.total_volume?.usd ?? 0,
-    change24h: md?.price_change_percentage_24h ?? 0,
+    id: String(raw.id ?? ""),
+    name: String(raw.name ?? ""),
+    symbol: String(raw.symbol ?? "").toUpperCase(),
+    image: (raw.image as { large?: string; small?: string } | undefined)?.large ?? (raw.image as { small?: string } | undefined)?.small,
+    price: getUsdNumber(md?.current_price),
+    marketCap: getUsdNumber(md?.market_cap),
+    volume24h: getUsdNumber(md?.total_volume),
+    change24h: getNumber(md?.price_change_percentage_24h) ?? 0,
+    high24h: getUsdNumber(md?.high_24h),
+    low24h: getUsdNumber(md?.low_24h),
+    priceChange24h: getNumber(md?.price_change_24h) ?? 0,
+    marketCapChange24h: getNumber(md?.market_cap_change_24h) ?? 0,
+    marketCapChangePercent24h: getNumber(md?.market_cap_change_percentage_24h) ?? 0,
+    circulatingSupply: getNumber(md?.circulating_supply) ?? 0,
+    totalSupply: md?.total_supply == null ? null : getNumber(md.total_supply),
+    maxSupply: md?.max_supply == null ? null : getNumber(md.max_supply),
+    ath: getUsdNumber(md?.ath),
+    athDate: formatDate(athDateRaw),
+    athChangePercent: getNumber(md?.ath_change_percentage) ?? 0,
+    atl: getUsdNumber(md?.atl),
+    atlDate: formatDate(atlDateRaw),
+    atlChangePercent: getNumber(md?.atl_change_percentage) ?? 0,
+    lastUpdated: lastUpdatedStr,
+    description: typeof desc?.en === "string" ? desc.en : undefined,
   };
 }
