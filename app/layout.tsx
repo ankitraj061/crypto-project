@@ -79,29 +79,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           </div>
         </nav>
 
-        {/* ── Ticker tape ── */}
-        <div className="border-b border-app-border-subtle py-1.5 px-4 overflow-hidden">
-          <div className="flex items-center gap-6 text-xs font-app-mono text-app-text-dim overflow-x-auto whitespace-nowrap">
-            <span className="text-app-text-dimmer font-semibold shrink-0">MARKET</span>
-            {[
-              { s: "BTC", p: "$67,432", c: "+1.24%", up: true },
-              { s: "ETH", p: "$3,521", c: "+0.87%", up: true },
-              { s: "BNB", p: "$412.33", c: "-0.42%", up: false },
-              { s: "SOL", p: "$182.90", c: "+3.21%", up: true },
-              { s: "XRP", p: "$0.6231", c: "-1.15%", up: false },
-              { s: "DOGE", p: "$0.1423", c: "+5.88%", up: true },
-              { s: "ADA", p: "$0.4812", c: "+0.03%", up: true },
-              { s: "AVAX", p: "$38.21", c: "+2.10%", up: true },
-            ].map((t) => (
-              <span key={t.s} className="shrink-0">
-                {t.s} <span className="text-app-text-muted">{t.p}</span>{" "}
-                <span className={t.up ? "text-app-positive" : "text-app-negative"}>{t.c}</span>
-              </span>
-            ))}
-          </div>
-        </div>
-
-        {/* ── Page content ── */}
+        {/* Page content (ticker tape removed; dashboard table/cards show live data) */}
         <main>
           <StoreProvider>{children}</StoreProvider>
         </main>
